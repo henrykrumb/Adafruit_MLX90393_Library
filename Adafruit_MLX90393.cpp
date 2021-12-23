@@ -295,7 +295,7 @@ bool Adafruit_MLX90393::setTrigInt(bool state) {
  * @return True on command success
  */
 bool Adafruit_MLX90393::startSingleMeasurement(void) {
-  uint8_t tx[1] = {MLX90393_REG_SM | MLX90393_AXIS_ALL};
+  uint8_t tx[1] = {MLX90393_REG_SM | MLX90393_AXIS_ALL_T};
 
   /* Set the device to single measurement mode */
   uint8_t stat = transceive(tx, sizeof(tx), NULL, 0, 0);
@@ -311,24 +311,26 @@ bool Adafruit_MLX90393::startSingleMeasurement(void) {
  * @param x     Pointer to where the 'x' value should be stored.
  * @param y     Pointer to where the 'y' value should be stored.
  * @param z     Pointer to where the 'z' value should be stored.
+ * @param t     Pointer to where the 't' value should be stored.
  *
  * @return True on command success
  */
-bool Adafruit_MLX90393::readMeasurement(float *x, float *y, float *z) {
-  uint8_t tx[1] = {MLX90393_REG_RM | MLX90393_AXIS_ALL};
-  uint8_t rx[6] = {0};
+bool Adafruit_MLX90393::readMeasurement(float *x, float *y, float *z, float *t) {
+  uint8_t tx[1] = {MLX90393_REG_RM | MLX90393_AXIS_ALL_T};
+  uint8_t rx[8] = {0};
 
   /* Read a single data sample. */
   if (transceive(tx, sizeof(tx), rx, sizeof(rx), 0) != MLX90393_STATUS_OK) {
     return false;
   }
 
-  int16_t xi, yi, zi;
+  int16_t ti, xi, yi, zi;
 
   /* Convert data to uT and float. */
-  xi = (rx[0] << 8) | rx[1];
-  yi = (rx[2] << 8) | rx[3];
-  zi = (rx[4] << 8) | rx[5];
+  ti = (rx[0] << 8) | rx[1];
+  xi = (rx[2] << 8) | rx[3];
+  yi = (rx[4] << 8) | rx[5];
+  zi = (rx[6] << 8) | rx[7];
 
   if (_res_x == MLX90393_RES_18)
     xi -= 0x8000;
@@ -346,6 +348,7 @@ bool Adafruit_MLX90393::readMeasurement(float *x, float *y, float *z) {
   *x = (float)xi * mlx90393_lsb_lookup[0][_gain][_res_x][0];
   *y = (float)yi * mlx90393_lsb_lookup[0][_gain][_res_y][0];
   *z = (float)zi * mlx90393_lsb_lookup[0][_gain][_res_z][1];
+  *t = (float)ti;
 
   return true;
 }

@@ -26,6 +26,7 @@
 #define MLX90393_DEFAULT_ADDR (0x0C) /* Can also be 0x18, depending on IC */
 
 #define MLX90393_AXIS_ALL (0x0E)      /**< X+Y+Z axis bits for commands. */
+#define MLX90393_AXIS_ALL_T (0x0F)    /**< X+Y+Z axis bits for commands + temp */
 #define MLX90393_CONF1 (0x00)         /**< Gain */
 #define MLX90393_CONF2 (0x01)         /**< Burst, comm mode */
 #define MLX90393_CONF3 (0x02)         /**< Oversampling, filter, res. */
@@ -42,6 +43,7 @@
 enum {
   MLX90393_REG_SB = (0x10),  /**< Start burst mode. */
   MLX90393_REG_SW = (0x20),  /**< Start wakeup on change mode. */
+  MLX90393_REG_TM = (0x24),  /**< Read on-board 16-bit temperature sensor. */
   MLX90393_REG_SM = (0x30),  /**> Start single-meas mode. */
   MLX90393_REG_RM = (0x40),  /**> Read measurement. */
   MLX90393_REG_RR = (0x50),  /**< Read register. */
@@ -178,7 +180,7 @@ public:
   bool reset(void);
   bool exitMode(void);
 
-  bool readMeasurement(float *x, float *y, float *z);
+  bool readMeasurement(float *x, float *y, float *z, float *t);
   bool startSingleMeasurement(void);
 
   bool setGain(enum mlx90393_gain gain);
